@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Fregar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fregar">
+<meta name="theme-color" content="#0E2038">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#0E2038;
+  --tinta-2:#16304F;
+  --tinta-3:#22456C;
+  --cal:#F4EFE4;
+  --cal-mute:#9DB2CB;
+  --carmin:#E2536B;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --ui:"Work Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --azulejo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='1'%3E%3Cpath d='M22 1 L43 22 L22 43 L1 22Z'/%3E%3Ccircle cx='22' cy='22' r='7.5'/%3E%3Cpath d='M0 0 L44 44 M44 0 L0 44'/%3E%3C/g%3E%3C/svg%3E");
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--tinta);
+  color:var(--cal);
+  font-family:var(--ui);
+  font-size:16px;
+  line-height:1.45;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 24px);
+  max-width:560px;
+  margin:0 auto;
+}
+button{font-family:inherit;font-size:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select{font-family:inherit;font-size:16px}
+.hide{display:none !important}
+
+/* ---------- cabecera ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.wordmark{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.01em;margin:0;display:flex;align-items:center;gap:9px}
+.wordmark .glyph{width:20px;height:20px;opacity:.85}
+.icon-btn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--tinta-2);border:1px solid var(--tinta-3)}
+.icon-btn:active{background:var(--tinta-3)}
+.icon-btn svg{width:19px;height:19px}
+
+/* ---------- azulejo (elemento firma) ---------- */
+.tile{
+  position:relative;
+  background:var(--tinta-2);
+  border:1px solid var(--tinta-3);
+  border-radius:18px;
+  padding:16px 16px 14px;
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.tile::before{
+  content:"";position:absolute;inset:0;
+  background-image:var(--azulejo);
+  background-size:44px 44px;
+  opacity:.045;pointer-events:none;
+}
+.tile::after{
+  content:"";position:absolute;inset:5px;
+  border:1px solid rgba(244,239,228,.09);
+  border-radius:13px;pointer-events:none;
+}
+.tile > *{position:relative;z-index:1}
+
+.tile-head{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.tile-head .cat{
+  font-family:var(--ui);font-weight:600;font-size:12px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--cal-mute);
+}
+.tile-head svg{width:17px;height:17px;color:var(--cal-mute);flex:none}
+.tally{margin-left:auto;font-size:12.5px;color:var(--cal-mute);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+
+.eyebrow{margin:0;font-size:12.5px;color:var(--cal-mute);letter-spacing:.02em}
+.turn-name{
+  font-family:var(--display);font-weight:800;font-size:34px;line-height:1.1;
+  margin:1px 0 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.badge{
+  font-family:var(--ui);font-weight:600;font-size:13px;line-height:1;
+  background:var(--carmin);color:#fff;border-radius:999px;
+  padding:6px 10px;letter-spacing:.01em;white-space:nowrap;
+}
+.tile-note{margin:8px 0 0;font-size:13px;color:var(--cal-mute)}
+.tile-note b{color:var(--cal);font-weight:500}
+
+.done{
+  display:block;width:100%;margin-top:15px;
+  background:var(--cal);color:var(--tinta);
+  font-weight:600;font-size:16.5px;letter-spacing:.01em;
+  padding:15px;border-radius:13px;
+}
+.done:active{transform:scale(.985);opacity:.9}
+
+/* ---------- pie ---------- */
+.foot{display:flex;gap:10px;margin-top:18px}
+.foot button{
+  flex:1;background:var(--tinta-2);border:1px solid var(--tinta-3);
+  border-radius:13px;padding:13px;font-size:14.5px;font-weight:500;color:var(--cal-mute);
+}
+.foot button:active{background:var(--tinta-3)}
+
+/* ---------- listas / historial ---------- */
+.screen-title{font-family:var(--display);font-weight:800;font-size:27px;margin:0 0 4px}
+.screen-sub{margin:0 0 20px;font-size:13.5px;color:var(--cal-mute)}
+.back{display:flex;align-items:center;gap:7px;font-size:14.5px;color:var(--cal-mute);margin-bottom:16px;padding:4px 0}
+.back svg{width:15px;height:15px}
+
+.daygroup{margin-bottom:18px}
+.daylabel{
+  font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--cal-mute);margin:0 0 8px 2px;font-weight:600;
+}
+.row{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  background:var(--tinta-2);border:1px solid var(--tinta-3);
+  border-radius:13px;padding:12px 14px;margin-bottom:7px;
+}
+.row:active{background:var(--tinta-3)}
+.dot{width:11px;height:11px;border-radius:50%;flex:none}
+.row-main{flex:1;min-width:0}
+.row-name{font-weight:600;font-size:15px;display:block}
+.row-meta{font-size:12.5px;color:var(--cal-mute)}
+.pill{
+  font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 8px;border-radius:999px;flex:none;
+}
+.pill.turno{background:rgba(244,239,228,.10);color:var(--cal-mute)}
+.pill.cobertura{background:rgba(226,83,107,.18);color:#F2909F}
+
+.empty{
+  text-align:center;padding:48px 22px;color:var(--cal-mute);
+  border:1px dashed var(--tinta-3);border-radius:16px;font-size:14.5px;
+}
+.empty strong{display:block;color:var(--cal);font-family:var(--display);font-size:19px;font-weight:600;margin-bottom:6px}
+
+/* ---------- formularios ---------- */
+.field{margin-bottom:18px}
+.label{display:block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cal-mute);font-weight:600;margin-bottom:8px}
+.input{
+  width:100%;background:var(--tinta-2);border:1px solid var(--tinta-3);
+  color:var(--cal);border-radius:12px;padding:14px;outline:none;
+}
+.input:focus{border-color:var(--cal-mute)}
+.swatches{display:flex;gap:9px;flex-wrap:wrap}
+.swatch{width:36px;height:36px;border-radius:11px;border:2px solid transparent}
+.swatch[aria-pressed="true"]{border-color:var(--cal);transform:scale(1.06)}
+.choice{display:flex;gap:9px}
+.choice button{
+  flex:1;background:var(--tinta-2);border:1px solid var(--tinta-3);
+  border-radius:12px;padding:13px;font-weight:500;font-size:15px;
+}
+.choice button[aria-pressed="true"]{background:var(--cal);color:var(--tinta);border-color:var(--cal);font-weight:600}
+.primary{
+  display:block;width:100%;background:var(--cal);color:var(--tinta);
+  font-weight:600;padding:15px;border-radius:13px;font-size:16.5px;margin-top:6px;
+}
+.primary:disabled{opacity:.4}
+.ghost{
+  display:block;width:100%;background:var(--tinta-2);border:1px solid var(--tinta-3);
+  color:var(--cal);padding:14px;border-radius:13px;font-size:15px;font-weight:500;margin-bottom:10px;
+}
+.ghost:active{background:var(--tinta-3)}
+.danger{color:#F2909F;border-color:rgba(226,83,107,.35)}
+.hint{font-size:12.5px;color:var(--cal-mute);margin:10px 2px 26px;line-height:1.5}
+
+/* ---------- hoja inferior ---------- */
+#scrim{
+  position:fixed;inset:0;background:rgba(6,14,26,.66);
+  opacity:0;pointer-events:none;transition:opacity .22s ease;z-index:40;
+  backdrop-filter:blur(2px);
+}
+#scrim.on{opacity:1;pointer-events:auto}
+#sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:var(--tinta-2);
+  border-top:1px solid var(--tinta-3);
+  border-radius:22px 22px 0 0;
+  padding:20px 18px calc(env(safe-area-inset-bottom) + 20px);
+  transform:translateY(102%);transition:transform .26s cubic-bezier(.32,.72,0,1);
+  max-width:560px;margin:0 auto;max-height:88vh;overflow-y:auto;
+}
+#sheet.on{transform:translateY(0)}
+.grabber{width:38px;height:4px;border-radius:99px;background:var(--tinta-3);margin:0 auto 16px}
+.sheet-title{font-family:var(--display);font-weight:800;font-size:22px;margin:0 0 3px}
+.sheet-sub{margin:0 0 18px;font-size:13px;color:var(--cal-mute)}
+
+.people{display:flex;flex-direction:column;gap:10px}
+.person{
+  display:flex;align-items:center;gap:13px;width:100%;text-align:left;
+  background:var(--tinta);border:1px solid var(--tinta-3);
+  border-radius:14px;padding:14px 15px;
+}
+.person:active{transform:scale(.99);opacity:.92}
+.person .dot{width:15px;height:15px}
+.person-name{font-weight:600;font-size:16.5px;flex:1}
+.person-tag{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--cal-mute)}
+.person-tag.cob{color:#F2909F}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ CONFIGURACIÓN INICIAL ══════════ -->
+<section id="v-setup" class="hide">
+  <h1 class="wordmark" style="margin-bottom:6px">
+    <svg class="glyph" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 3 L41 22 L22 41 L3 22Z"/><circle cx="22" cy="22" r="7"/></svg>
+    Fregar
+  </h1>
+  <p class="screen-sub">Dos personas, dos turnos: comida y cena. Configúralo una vez.</p>
+
+  <div class="field">
+    <label class="label" for="s-n1">Primera persona</label>
+    <input class="input" id="s-n1" type="text" placeholder="Nombre" autocomplete="off" maxlength="18">
+    <div class="swatches" id="s-c1" style="margin-top:10px"></div>
+  </div>
+
+  <div class="field">
+    <label class="label" for="s-n2">Segunda persona</label>
+    <input class="input" id="s-n2" type="text" placeholder="Nombre" autocomplete="off" maxlength="18">
+    <div class="swatches" id="s-c2" style="margin-top:10px"></div>
+  </div>
+
+  <div class="field">
+    <span class="label">¿Quién friega la primera comida?</span>
+    <div class="choice" id="s-start-comida"></div>
+  </div>
+
+  <div class="field">
+    <span class="label">¿Quién friega la primera cena?</span>
+    <div class="choice" id="s-start-cena"></div>
+  </div>
+
+  <button class="primary" id="s-save">Empezar</button>
+  <p class="hint">Todo se guarda en este móvil. No hay cuentas ni servidores.</p>
+</section>
+
+<!-- ══════════ PANTALLA PRINCIPAL ══════════ -->
+<section id="v-home" class="hide">
+  <div class="top">
+    <h1 class="wordmark">
+      <svg class="glyph" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 3 L41 22 L22 41 L3 22Z"/><circle cx="22" cy="22" r="7"/></svg>
+      Fregar
+    </h1>
+    <button class="icon-btn" id="go-ajustes" aria-label="Ajustes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.6 1.6 0 0 0 .32 1.77l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-1 1.46V21a2 2 0 1 1-4 0v-.11a1.6 1.6 0 0 0-1.05-1.46 1.6 1.6 0 0 0-1.77.32l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.46-1H3a2 2 0 1 1 0-4h.11a1.6 1.6 0 0 0 1.46-1.05 1.6 1.6 0 0 0-.32-1.77l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.6 1.6 0 0 0 1.77.32H9a1.6 1.6 0 0 0 1-1.46V3a2 2 0 1 1 4 0v.11a1.6 1.6 0 0 0 1 1.46 1.6 1.6 0 0 0 1.77-.32l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.6 1.6 0 0 0-.32 1.77V9a1.6 1.6 0 0 0 1.46 1H21a2 2 0 1 1 0 4h-.11a1.6 1.6 0 0 0-1.46 1z"/></svg>
+    </button>
+  </div>
+
+  <article class="tile" id="tile-comida">
+    <div class="tile-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 1.6v2.4M12 20v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M1.6 12H4M20 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+      <span class="cat">Comida</span>
+      <span class="tally" id="tally-comida"></span>
+    </div>
+    <p class="eyebrow">Le toca a</p>
+    <p class="turn-name" id="turn-comida"></p>
+    <p class="tile-note" id="note-comida"></p>
+    <button class="done" data-cat="comida">Hecho</button>
+  </article>
+
+  <article class="tile" id="tile-cena">
+    <div class="tile-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M20.5 14.5A8.6 8.6 0 0 1 9.5 3.5a8.6 8.6 0 1 0 11 11z"/></svg>
+      <span class="cat">Cena</span>
+      <span class="tally" id="tally-cena"></span>
+    </div>
+    <p class="eyebrow">Le toca a</p>
+    <p class="turn-name" id="turn-cena"></p>
+    <p class="tile-note" id="note-cena"></p>
+    <button class="done" data-cat="cena">Hecho</button>
+  </article>
+
+  <div class="foot">
+    <button id="go-historial">Historial</button>
+    <button id="go-ajustes-2">Ajustes</button>
+  </div>
+</section>
+
+<!-- ══════════ HISTORIAL ══════════ -->
+<section id="v-historial" class="hide">
+  <button class="back" id="back-1">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    Volver
+  </button>
+  <h2 class="screen-title">Historial</h2>
+  <p class="screen-sub" id="hist-sub"></p>
+  <div id="hist-list"></div>
+</section>
+
+<!-- ══════════ AJUSTES ══════════ -->
+<section id="v-ajustes" class="hide">
+  <button class="back" id="back-2">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    Volver
+  </button>
+  <h2 class="screen-title">Ajustes</h2>
+  <p class="screen-sub">Nombres, colores y copia de seguridad.</p>
+
+  <div class="field">
+    <label class="label" for="a-n1">Primera persona</label>
+    <input class="input" id="a-n1" type="text" maxlength="18" autocomplete="off">
+    <div class="swatches" id="a-c1" style="margin-top:10px"></div>
+  </div>
+  <div class="field">
+    <label class="label" for="a-n2">Segunda persona</label>
+    <input class="input" id="a-n2" type="text" maxlength="18" autocomplete="off">
+    <div class="swatches" id="a-c2" style="margin-top:10px"></div>
+  </div>
+  <button class="primary" id="a-save" style="margin-bottom:26px">Guardar cambios</button>
+
+  <span class="label">Copia de seguridad</span>
+  <button class="ghost" id="a-export">Exportar a un archivo</button>
+  <button class="ghost" id="a-import">Restaurar desde un archivo</button>
+  <input type="file" id="a-file" accept="application/json,.json" class="hide">
+  <p class="hint">El historial vive solo en este móvil. Si borras los datos de Safari o reinstalas la app, se pierde. Exporta de vez en cuando y guarda el archivo donde quieras.</p>
+
+  <span class="label">Empezar de cero</span>
+  <button class="ghost danger" id="a-reset">Borrar todo y reiniciar</button>
+  <p class="hint">Borra el historial, los contadores y las deudas. Volverás a elegir nombres y quién empieza cada turno.</p>
+</section>
+
+<!-- ══════════ HOJA ══════════ -->
+<div id="scrim"></div>
+<div id="sheet" role="dialog" aria-modal="true">
+  <div class="grabber"></div>
+  <div id="sheet-body"></div>
+</div>
+
+<script>
+"use strict";
+/* ══════════════════════════════════════════════════════════
+   ESTADO
+   ══════════════════════════════════════════════════════════ */
+var KEY = "fregar.v1";
+var PALETTE = ["#E9B23C","#46C2A8","#7FA8E8","#E2536B","#C88BE0","#8FCB5F"];
+var CATS = ["comida","cena"];
+var CAT_LABEL = { comida:"comida", cena:"cena" };
+var CAT_PLURAL = { comida:"comidas", cena:"cenas" };
+
+var S = null;      // estado persistido
+var D = null;      // estado derivado (recalculado siempre desde el historial)
+var view = "home";
+
+function blank(){
+  return {
+    v:1,
+    people:[{id:"a",name:"",color:PALETTE[0]},{id:"b",name:"",color:PALETTE[1]}],
+    start:{comida:"a",cena:"a"},
+    seq:0,
+    entries:[]   // {id, seq, date:"YYYY-MM-DD", cat, by}
+  };
+}
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(!raw) return null;
+    var o = JSON.parse(raw);
+    if(!o || !o.people || o.people.length !== 2) return null;
+    if(!o.entries) o.entries = [];
+    if(typeof o.seq !== "number") o.seq = o.entries.length;
+    return o;
+  }catch(e){ return null; }
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch(e){ alert("No se ha podido guardar en este dispositivo."); }
+}
+function other(id){ return id === "a" ? "b" : "a"; }
+function person(id){ return S.people[id === "a" ? 0 : 1]; }
+
+/* ══════════════════════════════════════════════════════════
+   MOTOR: recalcula turno, deuda y tipo de cada registro
+   reproduciendo TODO el historial en orden de fecha real.
+   Nunca se ajusta a parches: siempre se recalcula entero.
+   ══════════════════════════════════════════════════════════ */
+function sortedEntries(){
+  return S.entries.slice().sort(function(x,y){
+    if(x.date !== y.date) return x.date < y.date ? -1 : 1;
+    return x.seq - y.seq;
+  });
+}
+function compute(){
+  var out = { byCat:{}, entries:[] };
+  var typeOf = {};
+
+  CATS.forEach(function(cat){
+    var turn = S.start[cat];
+    var debt = 0;                    // deuda de quien tiene el turno
+    var count = { a:0, b:0 };
+    var last = null;
+
+    sortedEntries().forEach(function(e){
+      if(e.cat !== cat) return;
+      count[e.by]++;
+      if(e.by === turn){
+        typeOf[e.id] = "turno";
+        if(debt > 0){
+          debt--;
+          if(debt === 0) turn = other(turn);   // deuda saldada -> se libera
+        } else {
+          turn = other(turn);                  // turno normal -> alterna
+        }
+      } else {
+        typeOf[e.id] = "cobertura";
+        debt++;                                // el ausente debe una más
+        // el turno NO se mueve
+      }
+      last = e;
+    });
+
+    out.byCat[cat] = { turn:turn, debt:debt, count:count, last:last };
+  });
+
+  out.entries = sortedEntries().reverse().map(function(e){
+    return { e:e, type: typeOf[e.id] || "turno" };
+  });
+  return out;
+}
+/* Simula qué pasaría si `who` registrase una tarea de `cat` en `date`,
+   para poder avisar en la hoja si sería turno o cobertura. */
+function previewType(cat, date, who){
+  var turn = S.start[cat];
+  var debt = 0;
+  var list = sortedEntries().filter(function(e){ return e.cat === cat; });
+  var result = null;
+  var inserted = false;
+  var virtual = { date:date, by:who, seq:Number.MAX_SAFE_INTEGER, virtual:true };
+
+  list.push(virtual);
+  list.sort(function(x,y){
+    if(x.date !== y.date) return x.date < y.date ? -1 : 1;
+    return x.seq - y.seq;
+  });
+
+  for(var i=0;i<list.length;i++){
+    var e = list[i];
+    var t;
+    if(e.by === turn){
+      t = "turno";
+      if(debt > 0){ debt--; if(debt === 0) turn = other(turn); }
+      else turn = other(turn);
+    } else {
+      t = "cobertura";
+      debt++;
+    }
+    if(e.virtual){ result = t; inserted = true; }
+  }
+  return result || "turno";
+}
+
+/* ══════════════════════════════════════════════════════════
+   FECHAS
+   ══════════════════════════════════════════════════════════ */
+function today(){
+  var d = new Date();
+  return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+}
+function pad(n){ return (n<10?"0":"") + n; }
+function parseISO(s){
+  var p = s.split("-");
+  return new Date(+p[0], +p[1]-1, +p[2]);
+}
+function dayLabel(iso){
+  var t = today();
+  if(iso === t) return "Hoy";
+  var y = new Date(parseISO(t).getTime() - 86400000);
+  if(iso === y.getFullYear()+"-"+pad(y.getMonth()+1)+"-"+pad(y.getDate())) return "Ayer";
+  var d = parseISO(iso);
+  var out = d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+  if(d.getFullYear() !== new Date().getFullYear()) out += " de " + d.getFullYear();
+  return out;
+}
+function shortDate(iso){
+  var t = today();
+  if(iso === t) return "hoy";
+  var y = new Date(parseISO(t).getTime() - 86400000);
+  if(iso === y.getFullYear()+"-"+pad(y.getMonth()+1)+"-"+pad(y.getDate())) return "ayer";
+  return parseISO(iso).toLocaleDateString("es-ES",{day:"numeric",month:"short"});
+}
+
+/* ══════════════════════════════════════════════════════════
+   NAVEGACIÓN
+   ══════════════════════════════════════════════════════════ */
+function show(v){
+  view = v;
+  ["setup","home","historial","ajustes"].forEach(function(n){
+    document.getElementById("v-"+n).classList.toggle("hide", n !== v);
+  });
+  window.scrollTo(0,0);
+  if(v === "setup") refreshSetupNames();
+  if(v === "home") renderHome();
+  if(v === "historial") renderHist();
+  if(v === "ajustes") fillAjustes();
+}
+
+/* ══════════════════════════════════════════════════════════
+   PANTALLA PRINCIPAL
+   ══════════════════════════════════════════════════════════ */
+function renderHome(){
+  D = compute();
+  CATS.forEach(function(cat){
+    var c = D.byCat[cat];
+    var p = person(c.turn);
+    var nameEl = document.getElementById("turn-"+cat);
+    nameEl.innerHTML = "";
+    var span = document.createElement("span");
+    span.textContent = p.name;
+    span.style.color = p.color;
+    nameEl.appendChild(span);
+    if(c.debt > 0){
+      var b = document.createElement("span");
+      b.className = "badge";
+      b.textContent = "debe " + c.debt;
+      nameEl.appendChild(b);
+    }
+
+    document.getElementById("tally-"+cat).textContent =
+      person("a").name.split(" ")[0] + " " + c.count.a + "  ·  " +
+      person("b").name.split(" ")[0] + " " + c.count.b;
+
+    var note = document.getElementById("note-"+cat);
+    var txt = "";
+    if(c.debt > 0){
+      txt = "Le cubrieron " + c.debt + " " + (c.debt === 1 ? CAT_LABEL[cat] : CAT_PLURAL[cat]) +
+            ". Sigue siendo su turno hasta que las recupere.";
+    } else if(c.last){
+      var lp = person(c.last.by);
+      txt = "La última la hizo <b>" + esc(lp.name) + "</b>, " + shortDate(c.last.date) + ".";
+    } else {
+      txt = "Todavía no hay ninguna " + CAT_LABEL[cat] + " registrada.";
+    }
+    note.innerHTML = txt;
+  });
+}
+function esc(s){
+  return String(s).replace(/[&<>"]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   HOJA: REGISTRAR
+   ══════════════════════════════════════════════════════════ */
+var sheetEl = document.getElementById("sheet");
+var scrimEl = document.getElementById("scrim");
+function openSheet(html){
+  document.getElementById("sheet-body").innerHTML = html;
+  scrimEl.classList.add("on");
+  sheetEl.classList.add("on");
+}
+function closeSheet(){
+  scrimEl.classList.remove("on");
+  sheetEl.classList.remove("on");
+}
+scrimEl.addEventListener("click", closeSheet);
+
+function openRegistrar(cat){
+  var html =
+    '<h3 class="sheet-title">' + (cat === "comida" ? "Comida" : "Cena") + '</h3>' +
+    '<p class="sheet-sub">¿Quién ha fregado?</p>' +
+    '<div class="field">' +
+      '<label class="label" for="r-date">Día</label>' +
+      '<input class="input" type="date" id="r-date" value="' + today() + '">' +
+    '</div>' +
+    '<div class="people" id="r-people"></div>';
+  openSheet(html);
+
+  var dateEl = document.getElementById("r-date");
+  var box = document.getElementById("r-people");
+
+  function paint(){
+    box.innerHTML = "";
+    S.people.forEach(function(p){
+      var t = previewType(cat, dateEl.value || today(), p.id);
+      var b = document.createElement("button");
+      b.className = "person";
+      b.innerHTML =
+        '<span class="dot" style="background:' + p.color + '"></span>' +
+        '<span class="person-name">' + esc(p.name) + '</span>' +
+        '<span class="person-tag ' + (t === "cobertura" ? "cob" : "") + '">' +
+        (t === "cobertura" ? "Cubre turno" : "Su turno") + '</span>';
+      b.addEventListener("click", function(){
+        addEntry(cat, dateEl.value || today(), p.id);
+      });
+      box.appendChild(b);
+    });
+  }
+  dateEl.addEventListener("change", paint);
+  paint();
+}
+function addEntry(cat, date, by){
+  S.seq++;
+  S.entries.push({ id:"e"+S.seq+"-"+Date.now(), seq:S.seq, date:date, cat:cat, by:by });
+  save();
+  closeSheet();
+  renderHome();
+}
+
+/* ══════════════════════════════════════════════════════════
+   HOJA: EDITAR REGISTRO
+   ══════════════════════════════════════════════════════════ */
+function openEditar(id){
+  var e = null;
+  S.entries.forEach(function(x){ if(x.id === id) e = x; });
+  if(!e) return;
+
+  var html =
+    '<h3 class="sheet-title">Corregir registro</h3>' +
+    '<p class="sheet-sub">Al guardar, los turnos y las deudas se recalculan solos.</p>' +
+    '<div class="field">' +
+      '<label class="label" for="e-date">Día</label>' +
+      '<input class="input" type="date" id="e-date" value="' + e.date + '">' +
+    '</div>' +
+    '<div class="field">' +
+      '<span class="label">Qué fue</span>' +
+      '<div class="choice" id="e-cat">' +
+        '<button data-v="comida" aria-pressed="' + (e.cat === "comida") + '">Comida</button>' +
+        '<button data-v="cena" aria-pressed="' + (e.cat === "cena") + '">Cena</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="field">' +
+      '<span class="label">Quién fregó</span>' +
+      '<div class="choice" id="e-by">' +
+        '<button data-v="a" aria-pressed="' + (e.by === "a") + '">' + esc(person("a").name) + '</button>' +
+        '<button data-v="b" aria-pressed="' + (e.by === "b") + '">' + esc(person("b").name) + '</button>' +
+      '</div>' +
+    '</div>' +
+    '<button class="primary" id="e-save">Guardar</button>' +
+    '<button class="ghost danger" id="e-del" style="margin-top:10px">Borrar este registro</button>';
+  openSheet(html);
+
+  var pick = { cat:e.cat, by:e.by };
+  ["e-cat","e-by"].forEach(function(gid){
+    var g = document.getElementById(gid);
+    g.querySelectorAll("button").forEach(function(b){
+      b.addEventListener("click", function(){
+        g.querySelectorAll("button").forEach(function(o){ o.setAttribute("aria-pressed","false"); });
+        b.setAttribute("aria-pressed","true");
+        pick[gid === "e-cat" ? "cat" : "by"] = b.dataset.v;
+      });
+    });
+  });
+
+  document.getElementById("e-save").addEventListener("click", function(){
+    e.date = document.getElementById("e-date").value || e.date;
+    e.cat = pick.cat;
+    e.by = pick.by;
+    save(); closeSheet(); renderHist();
+  });
+  document.getElementById("e-del").addEventListener("click", function(){
+    if(!confirm("¿Borrar este registro?")) return;
+    S.entries = S.entries.filter(function(x){ return x.id !== id; });
+    save(); closeSheet(); renderHist();
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   HISTORIAL
+   ══════════════════════════════════════════════════════════ */
+function renderHist(){
+  D = compute();
+  var list = document.getElementById("hist-list");
+  var sub = document.getElementById("hist-sub");
+  list.innerHTML = "";
+
+  if(!D.entries.length){
+    sub.textContent = "";
+    list.innerHTML = '<div class="empty"><strong>Aquí no hay nada todavía</strong>' +
+      'Cada vez que alguien friegue, aparecerá en esta lista. Toca cualquier registro para corregirlo.</div>';
+    return;
+  }
+
+  var tot = { comida:D.byCat.comida.count, cena:D.byCat.cena.count };
+  sub.innerHTML =
+    "Comidas " + tot.comida.a + "–" + tot.comida.b +
+    " · Cenas " + tot.cena.a + "–" + tot.cena.b +
+    " · Toca un registro para corregirlo.";
+
+  var currentDay = null, group = null;
+  D.entries.forEach(function(item){
+    var e = item.e;
+    if(e.date !== currentDay){
+      currentDay = e.date;
+      group = document.createElement("div");
+      group.className = "daygroup";
+      var h = document.createElement("p");
+      h.className = "daylabel";
+      h.textContent = dayLabel(e.date);
+      group.appendChild(h);
+      list.appendChild(group);
+    }
+    var p = person(e.by);
+    var row = document.createElement("button");
+    row.className = "row";
+    row.innerHTML =
+      '<span class="dot" style="background:' + p.color + '"></span>' +
+      '<span class="row-main">' +
+        '<span class="row-name">' + esc(p.name) + '</span>' +
+        '<span class="row-meta">' + (e.cat === "comida" ? "Comida" : "Cena") + '</span>' +
+      '</span>' +
+      '<span class="pill ' + item.type + '">' + (item.type === "cobertura" ? "Cobertura" : "Turno") + '</span>';
+    row.addEventListener("click", function(){ openEditar(e.id); });
+    group.appendChild(row);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
+   CONFIGURACIÓN INICIAL
+   ══════════════════════════════════════════════════════════ */
+var setupPick = { c1:PALETTE[0], c2:PALETTE[1], comida:"a", cena:"a" };
+
+function buildSwatches(el, key, get, set){
+  el.innerHTML = "";
+  PALETTE.forEach(function(col){
+    var b = document.createElement("button");
+    b.className = "swatch";
+    b.style.background = col;
+    b.setAttribute("aria-label","Color " + col);
+    b.setAttribute("aria-pressed", get() === col);
+    b.addEventListener("click", function(){
+      set(col);
+      el.querySelectorAll(".swatch").forEach(function(o){ o.setAttribute("aria-pressed","false"); });
+      b.setAttribute("aria-pressed","true");
+      refreshSetupNames();
+    });
+    el.appendChild(b);
+  });
+}
+function refreshSetupNames(){
+  if(view !== "setup") return;
+  var n1 = document.getElementById("s-n1").value.trim() || "Persona 1";
+  var n2 = document.getElementById("s-n2").value.trim() || "Persona 2";
+  CATS.forEach(function(cat){
+    var g = document.getElementById("s-start-" + cat);
+    g.innerHTML = "";
+    [["a",n1],["b",n2]].forEach(function(pair){
+      var b = document.createElement("button");
+      b.textContent = pair[1];
+      b.setAttribute("aria-pressed", setupPick[cat] === pair[0]);
+      b.addEventListener("click", function(){
+        setupPick[cat] = pair[0];
+        refreshSetupNames();
+      });
+      g.appendChild(b);
+    });
+  });
+  document.getElementById("s-save").disabled =
+    !document.getElementById("s-n1").value.trim() || !document.getElementById("s-n2").value.trim();
+}
+function initSetup(){
+  setupPick = { c1:PALETTE[0], c2:PALETTE[1], comida:"a", cena:"a" };
+  document.getElementById("s-n1").value = "";
+  document.getElementById("s-n2").value = "";
+  buildSwatches(document.getElementById("s-c1"), "c1",
+    function(){ return setupPick.c1; }, function(v){ setupPick.c1 = v; });
+  buildSwatches(document.getElementById("s-c2"), "c2",
+    function(){ return setupPick.c2; }, function(v){ setupPick.c2 = v; });
+  if(!initSetup.bound){
+    document.getElementById("s-n1").addEventListener("input", refreshSetupNames);
+    document.getElementById("s-n2").addEventListener("input", refreshSetupNames);
+    initSetup.bound = true;
+  }
+  refreshSetupNames();
+}
+document.getElementById("s-save").addEventListener("click", function(){
+  var n1 = document.getElementById("s-n1").value.trim();
+  var n2 = document.getElementById("s-n2").value.trim();
+  if(!n1 || !n2) return;
+  if(setupPick.c1 === setupPick.c2){
+    alert("Elige un color distinto para cada persona: es lo que os permite distinguiros de un vistazo.");
+    return;
+  }
+  S = blank();
+  S.people = [{id:"a",name:n1,color:setupPick.c1},{id:"b",name:n2,color:setupPick.c2}];
+  S.start = { comida:setupPick.comida, cena:setupPick.cena };
+  save();
+  show("home");
+});
+
+/* ══════════════════════════════════════════════════════════
+   AJUSTES
+   ══════════════════════════════════════════════════════════ */
+var ajustesPick = { c1:null, c2:null };
+function fillAjustes(){
+  ajustesPick.c1 = person("a").color;
+  ajustesPick.c2 = person("b").color;
+  document.getElementById("a-n1").value = person("a").name;
+  document.getElementById("a-n2").value = person("b").name;
+  buildSwatches(document.getElementById("a-c1"), "c1",
+    function(){ return ajustesPick.c1; }, function(v){ ajustesPick.c1 = v; });
+  buildSwatches(document.getElementById("a-c2"), "c2",
+    function(){ return ajustesPick.c2; }, function(v){ ajustesPick.c2 = v; });
+}
+document.getElementById("a-save").addEventListener("click", function(){
+  var n1 = document.getElementById("a-n1").value.trim();
+  var n2 = document.getElementById("a-n2").value.trim();
+  if(!n1 || !n2){ alert("Los dos nombres son necesarios."); return; }
+  if(ajustesPick.c1 === ajustesPick.c2){ alert("Elige un color distinto para cada persona."); return; }
+  S.people[0].name = n1; S.people[0].color = ajustesPick.c1;
+  S.people[1].name = n2; S.people[1].color = ajustesPick.c2;
+  save();
+  show("home");
+});
+document.getElementById("a-reset").addEventListener("click", function(){
+  if(!confirm("Se borra el historial, los contadores y las deudas. No se puede deshacer.")) return;
+  localStorage.removeItem(KEY);
+  S = blank();
+  initSetup();
+  show("setup");
+});
+
+/* --- copia de seguridad --- */
+document.getElementById("a-export").addEventListener("click", function(){
+  var blob = new Blob([JSON.stringify(S,null,2)], {type:"application/json"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "fregar-" + today() + ".json";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 800);
+});
+document.getElementById("a-import").addEventListener("click", function(){
+  document.getElementById("a-file").click();
+});
+document.getElementById("a-file").addEventListener("change", function(ev){
+  var f = ev.target.files[0];
+  if(!f) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try{
+      var o = JSON.parse(r.result);
+      if(!o.people || o.people.length !== 2 || !o.start) throw new Error("formato");
+      if(!confirm("Se sustituirá todo lo que hay ahora por el contenido del archivo. ¿Seguir?")) return;
+      o.entries = o.entries || [];
+      o.seq = typeof o.seq === "number" ? o.seq : o.entries.length;
+      S = o; save(); show("home");
+    }catch(err){
+      alert("Ese archivo no es una copia de Fregar.");
+    }
+  };
+  r.readAsText(f);
+  ev.target.value = "";
+});
+
+/* ══════════════════════════════════════════════════════════
+   ENLACES
+   ══════════════════════════════════════════════════════════ */
+document.querySelectorAll(".done").forEach(function(b){
+  b.addEventListener("click", function(){ openRegistrar(b.dataset.cat); });
+});
+document.getElementById("go-historial").addEventListener("click", function(){ show("historial"); });
+document.getElementById("go-ajustes").addEventListener("click", function(){ show("ajustes"); });
+document.getElementById("go-ajustes-2").addEventListener("click", function(){ show("ajustes"); });
+document.getElementById("back-1").addEventListener("click", function(){ show("home"); });
+document.getElementById("back-2").addEventListener("click", function(){ show("home"); });
+
+/* ══════════════════════════════════════════════════════════
+   ARRANQUE
+   ══════════════════════════════════════════════════════════ */
+S = load();
+if(S){ show("home"); }
+else { S = blank(); initSetup(); show("setup"); }
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
